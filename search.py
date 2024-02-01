@@ -129,7 +129,34 @@ def breadthFirstSearch(problem):
     You are not required to implement this, but you may find it useful for Q5.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+      "*** YOUR CODE HERE ***"
+# create Queue to be explored and visited list
+    start = problem.getStartState()
+    node_list = util.Queue()
+    visited = []
+
+# push the start node on the node_list 
+    node_list.push((start, [], 1))
+
+# loop while Queue is not empty and goal is not reached 
+    while not node_list.isEmpty():
+        n = node_list.pop()
+        actions = n[1]
+
+        visited.append(n[0])
+
+        if problem.goalTest(n[0]):
+            return actions
+        
+        # expand node
+        for succAction in problem.getActions(n[0]):
+            newState = problem.getResult(n[0], succAction)
+            newCost = problem.getCost(n[0], succAction)
+            if not newState in visited:
+                node_list.push((newState, actions + [succAction], newCost))
+                visited.append(newState)
+    # completion                   
+    return actions
     
 def depthFirstSearch(problem): 
 
