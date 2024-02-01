@@ -17,7 +17,6 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
-from searchAgents import manhattanHeuristic
 import util
 import sys
 import copy
@@ -129,8 +128,6 @@ def breadthFirstSearch(problem):
     You are not required to implement this, but you may find it useful for Q5.
     """
     "*** YOUR CODE HERE ***"
-      "*** YOUR CODE HERE ***"
-# create Queue to be explored and visited list
     start = problem.getStartState()
     node_list = util.Queue()
     visited = []
@@ -147,7 +144,7 @@ def breadthFirstSearch(problem):
 
         if problem.goalTest(n[0]):
             return actions
-        
+
         # expand node
         for succAction in problem.getActions(n[0]):
             newState = problem.getResult(n[0], succAction)
@@ -202,45 +199,35 @@ def UniformCostSearch(problem):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
 
-    start = problem.getStartState() # get start state (origin node) of problem
+    #[Node(state, parent, action, path_cost), list of actions]
+    start = [Node(problem.getStartState(), None, 'None', 0), []] # get start state (origin node) of problem
 
-    path = {start: 0} # store path as dictionary. this will help us with getting the best possible action, and ensure we don't revisit nodes.
-
-    actions = [] # final path of actions, will be returned.
+    visited_nodes = [] # visited
 
     frontier = util.PriorityQueue() # init queue
-    frontier.push(start, 0) # push origin node to queue
+
+    frontier.push(start, 0) # push (origin node, heuristic) to queue
     
     while not frontier.isEmpty(): # while there are still nodes to visit...
-        current_state = frontier.pop() # get current node
+        this_val = frontier.pop() # get current best node
+        current_node = this_val[0] # unpack node
+        actions = this_val[1] # unpack actions
+        print(actions)
 
-        if not current_state in path: # check if we've visited this node before proceeding. if we've visited it, it's in the dictionary.
+        if not current_node in visited_nodes: # check if we've visited this node before proceeding.
+            visited_nodes.append(current_node) # if we haven't visited it, add it
 
-            if current_state.goalTest(): # if we've found our goal state, break and return
-                break 
+            if problem.goalTest(current_node.state): # if we've found our goal state, break and return
+                return actions
 
-            for possible_action in current_state.getActions(): # for each possible "action"/node we can take..
-                possible_cost = possible_action.getCost() # get this action's cost.
-                possible_heuristic = manhattanHeuristic(current_state, problem)
-
-                if current_state not in path or path[current_state] > possible_cost + possible_heuristic:
-                    # If this *is* the first possible action from the current node we're looking at, we can just add this possible action trivially as we have not looked at other actions.
-                    # If this is *not* the first possible action from the current node, we check if the cost of this action + our heuristic is smaller than the current smallest cost + heuristic for this node.
-                    path[current_state] = possible_cost + possible_heuristic # save this cost in our dictionary for use later.
-                    best_action = possible_action # save this action as the best action so far.
-
-            # at this point, we have identified the best action to take, so we take that action.
-            frontier.push(current_state.getResult(current_state, best_action)) # get resulting state from taking the identified best action and push it to the queue.
-            actions.append(best_action) # add best action to our list of actions.
-        
-    return actions # all done!
-
-    
-
-
-
-
-
+            for possible_action in problem.getActions(current_node.state): # for each possible "action"/node we can take..
+                
+                new_actions = actions + [possible_action] # create a new list of actions, including this action
+                possible_state = problem.getResult(current_node.state, possible_action) # resulting state of taking this action
+                possible_cost = current_node.path_cost + problem.getCost(current_node.state, possible_action) # total cost so far + cost of taking this action
+                possible_heuristic = possible_cost + heuristic(possible_state, problem) # path cost + heuristic related to this action
+                
+                frontier.push([Node(possible_state, current_node, possible_action, possible_cost), new_actions], possible_heuristic) # push this node, action list, and heuristic in
 
 # Abbreviations
 bfs = breadthFirstSearch
